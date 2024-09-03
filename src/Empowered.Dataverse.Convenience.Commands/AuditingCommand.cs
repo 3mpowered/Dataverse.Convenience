@@ -1,0 +1,325 @@
+﻿using System.Runtime.CompilerServices;
+using CommandDotNet;
+using Empowered.CommandLine.Extensions.Extensions;
+using Empowered.Dataverse.Convenience.Auditing;
+using Empowered.Dataverse.Convenience.Auditing.Extensions;
+using Empowered.Dataverse.Convenience.Auditing.Model;
+using Empowered.Dataverse.Convenience.Commands.Arguments;
+using Empowered.Dataverse.Convenience.Commands.Services;
+using Empowered.Dataverse.Model;
+using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Organization;
+using Microsoft.Xrm.Sdk.Query;
+using Spectre.Console;
+
+namespace Empowered.Dataverse.Convenience.Commands;
+
+public class AuditingCommand(
+    IAnsiConsole console,
+    IOrganizationService organizationService,
+    IAuditingService auditingService,
+    IExportService exportService)
+{
+    public async Task<int> Enable(ChangeAuditingArguments arguments)
+    {
+        TestConnection();
+        ChangedAuditSettings? changedAuditSettings = null;
+        console.Status().Start("Enable auditing ...",context =>
+        {
+            changedAuditSettings = auditingService.Enable(
+                arguments.Solution,
+                arguments.HandleAllAttributes,
+                arguments.IgnoreUserAccess,
+                arguments.Publish);
+        });
+
+        if (changedAuditSettings == null)
+        {
+            return await ExitCodes.Error;
+        }
+
+        var successfullyEnabledTables = changedAuditSettings.TableAuditSettings
+            .Where(table => table is { WasAuditEnabledBefore: false, IsAuditEnabled: true })
+            .ToList();
+        var failedTables = changedAuditSettings.TableAuditSettings
+            .Where(table => !string.IsNullOrWhiteSpace(table.ErrorMessage))
+            .ToList();
+        var unchangedTables = changedAuditSettings.TableAuditSettings
+            .Where(table => table is { IsAuditEnabled: true, WasAuditEnabledBefore: true }).ToList();
+        console.Success(
+            $"Enabled auditing for {successfullyEnabledTables.Count}/{changedAuditSettings.TableAuditSettings.Count} tables. Auditing was already enabled for {unchangedTables.Count} tables.");
+
+
+        if (failedTables.Any())
+        {
+            console.Warning($"Enabling auditing failed for {failedTables.Count} tables:");
+            var failedEntityTable = new Table
+            {
+                Title = new TableTitle("Tables"),
+                BorderStyle = Style.Plain
+            };
+            failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
+            foreach (var table in failedTables)
+            {
+                failedEntityTable.AddRow(table.DisplayName, table.LogicalName, table.ErrorMessage ?? string.Empty);
+            }
+
+            console.WriteLine();
+            console.Write(failedEntityTable);
+        }
+
+        var failedColumns = changedAuditSettings.TableAuditSettings
+            .SelectMany(table => table.ColumnAuditSettings)
+            .Where(column => !string.IsNullOrWhiteSpace(column.ErrorMessage))
+            .OrderBy(column => column.EntityLogicalName)
+            .ThenBy(column => column.LogicalName)
+            .ToList();
+
+        if (failedColumns.Any())
+        {
+            console.Warning($"Enabling auditing failed for {failedColumns.Count} columns:");
+            var failedColumnsTable = new Table
+            {
+                Title = new TableTitle("Columns"),
+                BorderStyle = Style.Plain
+            };
+            failedColumnsTable.AddColumns("Entity", "Column", "Error Message");
+
+            foreach (var column in failedColumns)
+            {
+                failedColumnsTable.AddRow(column.EntityLogicalName, column.LogicalName,
+                    column.ErrorMessage ?? string.Empty);
+            }
+
+            console.WriteLine();
+            console.Write(failedColumnsTable);
+        }
+
+        ExportOutputs(arguments, changedAuditSettings);
+
+        return await ExitCodes.Success;
+    }
+
+    public async Task<int> Disable(ChangeAuditingArguments arguments)
+    {
+        TestConnection();
+        ChangedAuditSettings? changedAuditSettings = null;
+        console.Status().Start("Disable auditing ...",context =>
+        {
+            changedAuditSettings = auditingService.Disable(
+                arguments.Solution,
+                arguments.HandleAllAttributes,
+                arguments.IgnoreUserAccess,
+                arguments.Publish);
+        });
+
+        if (changedAuditSettings == null)
+        {
+            return await ExitCodes.Error;
+        }
+
+        var successfullyEnabledTables = changedAuditSettings.TableAuditSettings
+            .Where(table => table is { WasAuditEnabledBefore: true, IsAuditEnabled: false })
+            .ToList();
+        var failedTables = changedAuditSettings.TableAuditSettings
+            .Where(table => !string.IsNullOrWhiteSpace(table.ErrorMessage))
+            .ToList();
+        var unchangedTables = changedAuditSettings.TableAuditSettings
+            .Where(table => table is { IsAuditEnabled: true, WasAuditEnabledBefore: true }).ToList();
+        console.Success(
+            $"Disabled auditing for {successfullyEnabledTables.Count}/{changedAuditSettings.TableAuditSettings.Count} tables. Auditing was already disabled for {unchangedTables.Count} tables.");
+
+        if (failedTables.Any())
+        {
+            console.Warning($"Disabling auditing failed for {failedTables.Count} tables:");
+            var failedEntityTable = new Table
+            {
+                Title = new TableTitle("Tables"),
+                BorderStyle = Style.Plain
+            };
+            failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
+            foreach (var table in failedTables)
+            {
+                failedEntityTable.AddRow(table.DisplayName, table.LogicalName, table.ErrorMessage ?? string.Empty);
+            }
+
+            console.WriteLine();
+            console.Write(failedEntityTable);
+        }
+
+        var failedColumns = changedAuditSettings.TableAuditSettings
+            .SelectMany(table => table.ColumnAuditSettings)
+            .Where(column => !string.IsNullOrWhiteSpace(column.ErrorMessage))
+            .OrderBy(column => column.EntityLogicalName)
+            .ThenBy(column => column.LogicalName)
+            .ToList();
+
+        if (failedColumns.Any())
+        {
+            console.Warning($"Enabling auditing failed for {failedColumns.Count} columns:");
+            var failedColumnsTable = new Table
+            {
+                Title = new TableTitle("Columns"),
+                BorderStyle = Style.Plain
+            };
+            failedColumnsTable.AddColumns("Entity", "Column", "Error Message");
+
+            foreach (var column in failedColumns)
+            {
+                failedColumnsTable.AddRow(column.EntityLogicalName, column.LogicalName,
+                    column.ErrorMessage ?? string.Empty);
+            }
+
+            console.WriteLine();
+            console.Write(failedColumnsTable);
+        }
+
+        ExportOutputs(arguments, changedAuditSettings);
+
+        return await ExitCodes.Success;
+    }
+
+    public async Task<int> List(AuditingArguments arguments)
+    {
+        TestConnection();
+        AuditSettings? auditSettings = null;
+        console.Status().Start("Retrieve audit settings ...",context =>
+        {
+            auditSettings = auditingService.Get(arguments.Solution, arguments.HandleAllAttributes);
+        });
+
+        if (auditSettings == null)
+        {
+            return await ExitCodes.Error;
+        }
+
+        PrintGlobalAuditTable(auditSettings);
+        console.WriteLine();
+
+        if (!auditSettings.TableAuditSettings.Any())
+        {
+            console.Warning($"Couldn't found any tables in solution {arguments.Solution.Italic()}");
+            return await ExitCodes.Success;
+        }
+
+        console.Success(
+            $"Found {auditSettings.TableAuditSettings.Count} tables in solution {arguments.Solution.Italic()}:");
+
+        PrintEntityAuditTable(auditSettings);
+        PrintColumnAuditTables(auditSettings);
+        ExportOutputs(arguments, auditSettings);
+
+        return await ExitCodes.Success;
+    }
+
+    private void ExportOutputs<TOutputType>(AuditingArguments arguments, TOutputType changedAuditSettings,
+        [CallerMemberName] string callingMethod = "")
+    {
+        if (arguments.ExportFormat == ExportFormat.Json)
+        {
+            var exportFile = exportService.Export(changedAuditSettings, arguments.ExportFormat,
+                arguments.ExportDirectory, $"auditing-{callingMethod.ToLowerInvariant()}");
+            console.Success($"Exported the audit results to file: {exportFile.FullName.Link()}");
+        }
+    }
+
+    private void PrintColumnAuditTables(AuditSettings auditSettings)
+    {
+        foreach (var tableData in auditSettings.TableAuditSettings)
+        {
+            var attributeTable = new Table
+            {
+                Title = new TableTitle(tableData.DisplayName),
+                Border = TableBorder.None
+            };
+
+            attributeTable.AddColumns("Attribute", "Logical Name", "Type");
+            attributeTable.AddColumn(new TableColumn("Is Audit Enabled").Centered());
+
+            foreach (var column in tableData.ColumnAuditSettings)
+            {
+                attributeTable.AddRow(
+                    column.DisplayName,
+                    column.LogicalName,
+                    column.TypeCode.Format(),
+                    column.IsAuditEnabled ? "x" : string.Empty
+                );
+            }
+
+            console.WriteLine();
+            console.Write(attributeTable);
+        }
+    }
+
+    private void PrintEntityAuditTable(AuditSettings auditSettings)
+    {
+        var entityTable = new Table
+        {
+            Border = TableBorder.None,
+        };
+        entityTable.AddColumns("Entity", "Logical Name", "Solution Behaviour", "Attribute Count");
+        entityTable.AddColumn(new TableColumn("Is Audit Enabled").Centered());
+
+        foreach (var tableData in auditSettings.TableAuditSettings)
+        {
+            entityTable.AddRow(
+                tableData.DisplayName,
+                tableData.LogicalName,
+                tableData.Behaviour.Format(),
+                tableData.ColumnAuditSettings.Count.ToString(),
+                tableData.IsAuditEnabled ? "x" : string.Empty
+            );
+        }
+
+        console.Write(entityTable);
+    }
+
+    private void PrintGlobalAuditTable(AuditSettings auditSettings)
+    {
+        var globalTable = new Table
+        {
+            Title = new TableTitle("Global Audit Settings"),
+            Border = TableBorder.None
+        };
+        globalTable.AddColumns(
+            new TableColumn("Setting"),
+            new TableColumn("Value")
+        );
+        globalTable.AddRow(
+            "Is Audit Enabled",
+            auditSettings.IsAuditEnabled ? "yes" : "no"
+        );
+        globalTable.AddRow(
+            "Audit Retention Period",
+            $"{auditSettings.AuditRetentionPeriod} days"
+        );
+        globalTable.AddRow(
+            "Is User Access Audit Enabled",
+            auditSettings.IsUserAccessAuditEnabled ? "yes" : "no"
+        );
+        globalTable.AddRow(
+            "User Access Audit Retention Period",
+            $"{auditSettings.UserAccessRetentionPeriod} days"
+        );
+
+        console.Write(globalTable);
+    }
+
+    private void TestConnection()
+    {
+        var whoAmI = (WhoAmIResponse)organizationService.Execute(new WhoAmIRequest());
+        var user = organizationService
+            .Retrieve(SystemUser.EntityLogicalName, whoAmI.UserId,
+                new ColumnSet(SystemUser.Fields.DomainName)
+            ).ToEntity<SystemUser>()
+            .DomainName;
+        var currentOrganization = (RetrieveCurrentOrganizationResponse)organizationService.Execute(
+            new RetrieveCurrentOrganizationRequest
+            {
+                AccessType = EndpointAccessType.Default
+            });
+        console.Success(
+            $"Connected to environment {currentOrganization.Detail.Endpoints[EndpointType.WebApplication].Italic()} as {user.Italic()}");
+    }
+}

@@ -1,0 +1,24 @@
+﻿{
+    "suppressINotifyPattern": true,
+    "suppressGeneratedCodeAttribute": false,
+    "language": "CS",
+    "namespace": "Empowered.Dataverse.Model",
+    "serviceContextName": "ServiceContext",
+    "generateSdkMessages": true,
+    "generateGlobalOptionSets": false,
+    "emitFieldsClasses": true,
+    "entityTypesFolder": "Entities",
+    "messagesTypesFolder": "Messages",
+    "optionSetsTypesFolder": "OptionSets",
+    "entityNamesFilter": [
+        "organization",
+        "solution",
+        "solutioncomponent",
+        "systemuser"
+    ],
+    "messageNamesFilter": [
+        "PublishAllAsync"
+    ],
+    "emitEntityETC": false,
+    "emitVirtualAttributes": false
+}

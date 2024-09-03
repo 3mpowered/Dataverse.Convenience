@@ -152,7 +152,6 @@ csharp_space_between_parentheses = false
 csharp_space_between_square_brackets = false
 
 # License header
-file_header_template = Copyright (c) DIGITALL Nature. All rights reserved\nDIGITALL Nature licenses this file to you under the Microsoft Public License.
 
 # C++ Files
 [*.{cpp,h,in}]

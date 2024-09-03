@@ -1,12 +1,12 @@
 <Project>
     <PropertyGroup>
-        <Title>TODO</Title>
+        <Title>Empowered.Dataverse.Convenience</Title>
         <Company>3mpowered</Company>
         <Authors>Simon Findling</Authors>
-        <Description>TODO</Description>
+        <Description>A CLI containing commands to execute tedious work in Dataverse more efficient.</Description>
         <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>TODO</RepositoryUrl>
-        <PackageProjectUrl>TODO</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/3mpowered/Dataverse.Convenience</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/3mpowered/Dataverse.Convenience</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>

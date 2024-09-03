@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="CommandDotNet" Version="7.0.4"/>
+    <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2"/>
+    <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.0.0" />
+    <PackageReference Include="Empowered.Dataverse.Connection.Client" Version="1.0.1" />
+    <PackageReference Include="Empowered.Dataverse.Connection.Store" Version="1.0.0-alpha.1"/>
+    <PackageReference Include="Spectre.Console" Version="0.49.1"/>
+    <PackageReference Include="Spectre.Console.Testing" Version="0.49.1"/>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Empowered.Dataverse.Convenience.Auditing\Empowered.Dataverse.Convenience.Auditing.csproj" />
+    <ProjectReference Include="..\Empowered.Dataverse.Model\Empowered.Dataverse.Model.csproj" />
+  </ItemGroup>
+</Project>
