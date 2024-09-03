@@ -15,7 +15,7 @@ public class AuditingArguments : IArgumentModel
     public required ExportFormat ExportFormat { get; set; } = ExportFormat.None;
 
     [Option(Description = "Directory to export the output to. Defaults to invoking directory.")]
-    public DirectoryInfo ExportDirectory { get; set; } = new DirectoryInfo(AppContext.BaseDirectory);
+    public DirectoryInfo ExportDirectory { get; set; } = new DirectoryInfo(Environment.CurrentDirectory);
 }
 
 public enum ExportFormat
