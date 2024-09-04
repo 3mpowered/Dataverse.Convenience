@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.0.1...v1.0.2) (2024-09-04)
+
+
+### Bug Fixes
+
+* use Dataverse connection test middleware ([eab46d7](https://github.com/3mpowered/Dataverse.Convenience/commit/eab46d73a7009c509e555281610904e0e8226b5c))
+
 ## [1.0.1](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.0.0...v1.0.1) (2024-09-03)
 
 
