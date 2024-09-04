@@ -6,24 +6,18 @@ using Empowered.Dataverse.Convenience.Auditing.Extensions;
 using Empowered.Dataverse.Convenience.Auditing.Model;
 using Empowered.Dataverse.Convenience.Commands.Arguments;
 using Empowered.Dataverse.Convenience.Commands.Services;
-using Empowered.Dataverse.Model;
-using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Organization;
-using Microsoft.Xrm.Sdk.Query;
 using Spectre.Console;
 
 namespace Empowered.Dataverse.Convenience.Commands;
 
 public class AuditingCommand(
     IAnsiConsole console,
-    IOrganizationService organizationService,
     IAuditingService auditingService,
     IExportService exportService)
 {
+
     public async Task<int> Enable(ChangeAuditingArguments arguments)
     {
-        TestConnection();
         ChangedAuditSettings? changedAuditSettings = null;
         console.Status().Start("Enable auditing ...",context =>
         {
@@ -103,7 +97,6 @@ public class AuditingCommand(
 
     public async Task<int> Disable(ChangeAuditingArguments arguments)
     {
-        TestConnection();
         ChangedAuditSettings? changedAuditSettings = null;
         console.Status().Start("Disable auditing ...",context =>
         {
@@ -182,7 +175,6 @@ public class AuditingCommand(
 
     public async Task<int> List(AuditingArguments arguments)
     {
-        TestConnection();
         AuditSettings? auditSettings = null;
         console.Status().Start("Retrieve audit settings ...",context =>
         {
@@ -304,22 +296,5 @@ public class AuditingCommand(
         );
 
         console.Write(globalTable);
-    }
-
-    private void TestConnection()
-    {
-        var whoAmI = (WhoAmIResponse)organizationService.Execute(new WhoAmIRequest());
-        var user = organizationService
-            .Retrieve(SystemUser.EntityLogicalName, whoAmI.UserId,
-                new ColumnSet(SystemUser.Fields.DomainName)
-            ).ToEntity<SystemUser>()
-            .DomainName;
-        var currentOrganization = (RetrieveCurrentOrganizationResponse)organizationService.Execute(
-            new RetrieveCurrentOrganizationRequest
-            {
-                AccessType = EndpointAccessType.Default
-            });
-        console.Success(
-            $"Connected to environment {currentOrganization.Detail.Endpoints[EndpointType.WebApplication].Italic()} as {user.Italic()}");
     }
 }
