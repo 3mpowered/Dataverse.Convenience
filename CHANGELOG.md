@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.1.0...v1.1.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* escape console markup output ([0e097d1](https://github.com/3mpowered/Dataverse.Convenience/commit/0e097d11943dc56072a592b14629ba989a0a5846))
+
 # [1.1.0](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.0.2...v1.1.0) (2024-11-12)
 
 
