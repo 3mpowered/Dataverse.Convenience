@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.0.2...v1.1.0) (2024-11-12)
+
+
+### Features
+
+* update dependencies ([a67d5a4](https://github.com/3mpowered/Dataverse.Convenience/commit/a67d5a42d71c6cbdd3a7f7592fef4b2004cd85f7))
+
 ## [1.0.2](https://github.com/3mpowered/Dataverse.Convenience/compare/v1.0.1...v1.0.2) (2024-09-04)
 
 
