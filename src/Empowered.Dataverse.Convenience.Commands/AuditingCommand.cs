@@ -56,7 +56,7 @@ public class AuditingCommand(
             failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
             foreach (var table in failedTables)
             {
-                failedEntityTable.AddRow(table.DisplayName, table.LogicalName, table.ErrorMessage ?? string.Empty);
+                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(), (table.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -82,8 +82,8 @@ public class AuditingCommand(
 
             foreach (var column in failedColumns)
             {
-                failedColumnsTable.AddRow(column.EntityLogicalName, column.LogicalName,
-                    column.ErrorMessage ?? string.Empty);
+                failedColumnsTable.AddRow(column.EntityLogicalName.EscapeMarkup(), column.LogicalName.EscapeMarkup(),
+                    (column.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -134,7 +134,7 @@ public class AuditingCommand(
             failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
             foreach (var table in failedTables)
             {
-                failedEntityTable.AddRow(table.DisplayName, table.LogicalName, table.ErrorMessage ?? string.Empty);
+                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(), (table.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -160,8 +160,8 @@ public class AuditingCommand(
 
             foreach (var column in failedColumns)
             {
-                failedColumnsTable.AddRow(column.EntityLogicalName, column.LogicalName,
-                    column.ErrorMessage ?? string.Empty);
+                failedColumnsTable.AddRow(column.EntityLogicalName.EscapeMarkup(), column.LogicalName.EscapeMarkup(),
+                    (column.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -212,7 +212,7 @@ public class AuditingCommand(
         {
             var exportFile = exportService.Export(changedAuditSettings, arguments.ExportFormat,
                 arguments.ExportDirectory, $"auditing-{callingMethod.ToLowerInvariant()}");
-            console.Success($"Exported the audit results to file: {exportFile.FullName.Link()}");
+            console.Success($"Exported the audit results to file: {exportFile.FullName.EscapeMarkup().Link()}");
         }
     }
 
@@ -232,9 +232,9 @@ public class AuditingCommand(
             foreach (var column in tableData.ColumnAuditSettings)
             {
                 attributeTable.AddRow(
-                    column.DisplayName,
-                    column.LogicalName,
-                    column.TypeCode.Format(),
+                    column.DisplayName.EscapeMarkup(),
+                    column.LogicalName.EscapeMarkup(),
+                    column.TypeCode.Format().EscapeMarkup(),
                     column.IsAuditEnabled ? "x" : string.Empty
                 );
             }
@@ -256,9 +256,9 @@ public class AuditingCommand(
         foreach (var tableData in auditSettings.TableAuditSettings)
         {
             entityTable.AddRow(
-                tableData.DisplayName,
-                tableData.LogicalName,
-                tableData.Behaviour.Format(),
+                tableData.DisplayName.EscapeMarkup(),
+                tableData.LogicalName.EscapeMarkup(),
+                tableData.Behaviour.Format().EscapeMarkup(),
                 tableData.ColumnAuditSettings.Count.ToString(),
                 tableData.IsAuditEnabled ? "x" : string.Empty
             );
@@ -284,7 +284,7 @@ public class AuditingCommand(
         );
         globalTable.AddRow(
             "Audit Retention Period",
-            $"{auditSettings.AuditRetentionPeriod} days"
+            $"{auditSettings.AuditRetentionPeriod} days".EscapeMarkup()
         );
         globalTable.AddRow(
             "Is User Access Audit Enabled",
@@ -292,7 +292,7 @@ public class AuditingCommand(
         );
         globalTable.AddRow(
             "User Access Audit Retention Period",
-            $"{auditSettings.UserAccessRetentionPeriod} days"
+            $"{auditSettings.UserAccessRetentionPeriod} days".EscapeMarkup()
         );
 
         console.Write(globalTable);
