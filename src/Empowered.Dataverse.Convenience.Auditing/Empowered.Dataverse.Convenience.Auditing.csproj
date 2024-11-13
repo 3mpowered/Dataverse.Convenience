@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.1.1" />
       <PackageReference Include="Empowered.Dataverse.Connection.Client" Version="1.0.1" />
     </ItemGroup>
 

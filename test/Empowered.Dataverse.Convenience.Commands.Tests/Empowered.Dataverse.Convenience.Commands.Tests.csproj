@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.1.1" />
     <PackageReference Include="FakeItEasy" Version="8.3.0" />
     <PackageReference Include="Spectre.Console.Testing" Version="0.49.1" />
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.11.1" />

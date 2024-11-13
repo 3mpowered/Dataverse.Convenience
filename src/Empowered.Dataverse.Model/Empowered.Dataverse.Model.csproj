@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.1.1" />
       <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.2.2" />
     </ItemGroup>
 

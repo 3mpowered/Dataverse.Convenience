@@ -15,11 +15,10 @@ public class AuditingCommand(
     IAuditingService auditingService,
     IExportService exportService)
 {
-
     public async Task<int> Enable(ChangeAuditingArguments arguments)
     {
         ChangedAuditSettings? changedAuditSettings = null;
-        console.Status().Start("Enable auditing ...",context =>
+        console.Status().Start("Enable auditing ...", context =>
         {
             changedAuditSettings = auditingService.Enable(
                 arguments.Solution,
@@ -56,7 +55,8 @@ public class AuditingCommand(
             failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
             foreach (var table in failedTables)
             {
-                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(), (table.ErrorMessage ?? string.Empty).EscapeMarkup());
+                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(),
+                    (table.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -98,7 +98,7 @@ public class AuditingCommand(
     public async Task<int> Disable(ChangeAuditingArguments arguments)
     {
         ChangedAuditSettings? changedAuditSettings = null;
-        console.Status().Start("Disable auditing ...",context =>
+        console.Status().Start("Disable auditing ...", context =>
         {
             changedAuditSettings = auditingService.Disable(
                 arguments.Solution,
@@ -134,7 +134,8 @@ public class AuditingCommand(
             failedEntityTable.AddColumns("Display Name", "Logical Name", "Error Message");
             foreach (var table in failedTables)
             {
-                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(), (table.ErrorMessage ?? string.Empty).EscapeMarkup());
+                failedEntityTable.AddRow(table.DisplayName.EscapeMarkup(), table.LogicalName.EscapeMarkup(),
+                    (table.ErrorMessage ?? string.Empty).EscapeMarkup());
             }
 
             console.WriteLine();
@@ -176,10 +177,8 @@ public class AuditingCommand(
     public async Task<int> List(AuditingArguments arguments)
     {
         AuditSettings? auditSettings = null;
-        console.Status().Start("Retrieve audit settings ...",context =>
-        {
-            auditSettings = auditingService.Get(arguments.Solution, arguments.HandleAllAttributes);
-        });
+        console.Status().Start("Retrieve audit settings ...",
+            context => { auditSettings = auditingService.Get(arguments.Solution, arguments.HandleAllAttributes); });
 
         if (auditSettings == null)
         {
@@ -222,8 +221,8 @@ public class AuditingCommand(
         {
             var attributeTable = new Table
             {
-                Title = new TableTitle(tableData.DisplayName),
-                Border = TableBorder.None
+                Title = new TableTitle(tableData.LogicalName.EscapeMarkup()),
+                Border = TableBorder.None,
             };
 
             attributeTable.AddColumns("Attribute", "Logical Name", "Type");
@@ -248,6 +247,7 @@ public class AuditingCommand(
     {
         var entityTable = new Table
         {
+            Title = new TableTitle("Entities"),
             Border = TableBorder.None,
         };
         entityTable.AddColumns("Entity", "Logical Name", "Solution Behaviour", "Attribute Count");

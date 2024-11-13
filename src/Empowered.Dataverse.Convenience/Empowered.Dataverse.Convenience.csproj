@@ -13,7 +13,7 @@
     <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="6.0.0"/>
     <PackageReference Include="CommandDotNet.NameCasing" Version="4.0.2"/>
     <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2"/>
-    <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.1.0" />
+    <PackageReference Include="Empowered.CommandLine.Extensions" Version="1.1.1" />
     <PackageReference Include="Empowered.CommandLine.Extensions.Dataverse" Version="1.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0"/>
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0"/>
